@@ -36,8 +36,14 @@ export const saveTemperature = functions.https.onRequest(async (request, respons
             date: request.body.date,
             celsius: request.body.celsius
         })
-        .then((docReference) => {
-            response.status(201).send(docReference);
+        .then(function (docReference) {
+            docReference.get()
+            .then(function (data) {
+                response.status(201).send(data.data());
+            })
+            .catch(function (err) {
+                response.status(500).send('Could not read from docRef Promise:\n' + err);
+            });
         })
         .catch((err) => {
             response.status(500).send('Firestore collection add() catch statement:\n' + err);
