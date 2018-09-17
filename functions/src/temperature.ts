@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+
 const cors = require('cors')({
     origin: true,
 });
@@ -14,11 +15,37 @@ export const getTemperature = functions.https.onRequest(async (request, response
             // ...
         });
         response.status(200).send(await getTemperatures());
-    } catch (e) {
+    } catch(err) {
         cors(request, response, () => {
             // ...
         });
-        response.status(500).send(e);
+        response.status(500).send(err);
+    }
+});
+
+export const saveTemperature = functions.https.onRequest(async (request, response) => {
+    try {
+        cors(request, response, () => {
+            // ...
+        });
+
+        if (!request.body.date || !request.body.celsius) {
+            response.status(500).send('Please provide date and celsius fields.');
+        }
+        db.collection('/temperatures').add({
+            date: request.body.date,
+            celsius: request.body.celsius
+        })
+        .then((docReference) => {
+            response.status(201).send(docReference);
+        })
+        .catch((err) => {
+            response.status(500).send('Firestore collection add() catch statement:\n' + err);
+        });
+    } catch(err) {
+        cors(request, response, () => {
+            response.status(500).send('functions.https.onRequest catch statement:\n' + err);
+        });
     }
 });
 
