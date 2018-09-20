@@ -5,7 +5,9 @@ const cors = require('cors')({
     origin: true,
 });
 
-admin.initializeApp();
+try {
+    admin.initializeApp();
+} catch {}
 
 const db = admin.firestore();
 
